@@ -30,11 +30,10 @@ using namespace std;
 int main() {  
 	ios_base::sync_with_stdio(0);
 	random_device rd;
-    	mt19937 mt(rd());
+    mt19937 mt(rd());
 	uniform_int_distribution<int> dist(1, 10000);
-
 	for (int i=0; i<20; ++i)
-		std::cout << dist(mt) << "\n";
+		cout << dist(mt) << endl;
 	return 0;
 }
 
