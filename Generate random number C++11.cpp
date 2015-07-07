@@ -28,15 +28,13 @@
 using namespace std;
 
 int main() {  
-	//freopen("1.docx", "r", stdin);
-	//freopen("out.txt", "w", stdout);
 	ios_base::sync_with_stdio(0);
 	random_device rd;
-    mt19937 mt(rd());
+    	mt19937 mt(rd());
 	uniform_int_distribution<int> dist(1, 10000);
 
-    for (int i=0; i<20; ++i)
-        std::cout << dist(mt) << "\n";
+	for (int i=0; i<20; ++i)
+		std::cout << dist(mt) << "\n";
 	return 0;
 }
 
