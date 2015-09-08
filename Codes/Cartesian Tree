@@ -1,0 +1,210 @@
+#include<stdio.h>
+#include<iostream>
+#include<iomanip>
+#include<fstream>
+#include<string>
+#include<vector>
+#include<set>
+#include<stack>
+#include<list>
+#include<queue>
+#include<deque>
+#include<bitset>
+#include<map>
+#include<algorithm>
+#include<cmath>
+
+
+#pragma comment (linker, "/STACK:640000000")
+#define INF 1000000000 //1e9
+#define EPS 1e-6
+#define PI 3.1415926535897932384626433832795028841971
+#define mp make_pair
+#define pb push_back
+#define pf push_front
+#define ppf pop_front
+#define ppb pop_back
+#define x first
+#define y second
+#define pii pair<int,int>
+#define pdd pair<double,double>
+#define FOR(i,a,b) for (int _n(b), i(a); i <= _n; ++i)
+#define FORD(i,a,b) for(int i=(a),_b=(b);i >= _b; --i)
+#define all(c) (c).begin(), (c).end()
+#define SORT(c) sort(all(c))
+#define rep(i,n) FOR(i,0,(n)-1)
+#define sum(c) (int)accumulate(all(c),0.)
+#define VI vector <int>
+#define ll long long
+#define sqr(x) ((x)*(x))
+#define MAX 100001
+
+//#define MOD 1000000000
+
+using namespace std;
+
+struct Treap;
+int sz(Treap *t);
+
+struct Treap
+{
+   int y,x,s;
+   Treap *left, *right;
+   Treap(int x , int y, Treap *l = NULL, Treap *r = NULL) : x(x), y(y), left(l), right(r), s(1) {};
+   ~Treap()
+   {
+       delete left;
+       delete right;
+   }
+   void Recalc()
+   {
+       s = sz(left) + 1 + sz(right);
+   }
+};
+
+int sz(Treap *t)
+{
+   return t ? t->s : 0;
+}
+
+void Merge(Treap *L, Treap *R, Treap *&T)
+{
+   if(!L||!R)
+   {
+       T =  L ? L : R;
+       return ;
+   }
+
+   if(L ->  y > R-> y)
+   {
+       T = L;
+       Merge(L->right, R, T->right);
+   }
+   else
+   {
+       T = R;
+       Merge(L, R->left, T->left);
+   }
+   if(T)T-> Recalc();
+}
+
+void Split(Treap *T, int X, Treap *&L, Treap *&R)
+{
+   if(!T)
+   {
+       L = R = NULL;
+       return ;
+   }
+   int IND = sz(T->left) + 1;
+   if(IND <= X)
+   {
+       L = T;
+       Split(L->right, X-IND, L->right, R);
+   }
+   else
+   {
+       R = T;
+       Split(R->left, X, L, R->left );
+   }
+   if(L)L->Recalc();
+   if(R)R->Recalc();
+}
+
+void Insert(Treap *&T, int i, int x)
+{
+   Treap *L, *R;
+   Split(T, i, L, R);
+   Merge(L, new Treap(x, rand()), L);
+   Merge(L, R, T);
+}
+
+void Delete(Treap *&T, int i)
+{
+   Treap *L, *R, *M;
+   Split(T, i-1, L, R);
+   Split(R, 1, M, R);
+   Merge(L,R,T);
+}
+
+void Swap(Treap *&T, int i, int j, int len)
+{
+   Treap *L, *A, *M, *B, *R;
+   if(i > j)swap(i,j);
+   Split(T, j+len-1, B, R);
+   Split(B, j-1, M, B);
+   Split(M, i+len-1, A, M);
+   Split(A, i-1, L, A);
+
+   Merge(L,B, L);
+   Merge(L,M, L);
+   Merge(L,A, L);
+   Merge(L,R, T);
+}
+
+int Get(Treap *&T, int i)
+{
+   Treap *L, *R, *M;
+   Split(T, i, L, R );
+   Split(L, i-1, L, M);
+   //cout <<"s:"<< sz(M) << endl;
+   Merge(L,M,L);
+   Merge(L,R,T);
+   return M -> x;
+}
+int cnt;
+void Print(Treap *T, int N)
+{
+   if(!T)return ;
+   Print(T->left, N);
+   ++cnt;
+   cout << T->x << (cnt == N ? '\n' : ' ');
+   Print(T->right, N);
+}
+
+int main()
+{
+   //cin.tie(NULL);
+   //ios_base::sync_with_stdio(false);
+   Treap *T = NULL;
+
+   int n,x,y,l, m ;
+   char ch;
+   scanf("%d%d", &n, &m);
+   rep(i,n)
+   {
+       scanf("%d", &x);
+       Merge(T, new Treap(x, rand()), T);
+   }
+   while(m--)
+   {
+       cin >> ch;
+       switch(ch)
+       {
+       case 'I': 
+           scanf("%d%d", &x, &y);
+           Insert(T,x, y);
+           n++;
+           break;
+       case 'D':
+           scanf("%d", &x);
+           Delete(T,x);
+           n--;
+           break;
+       case 'S':
+           scanf("%d%d%d", &x, &y, &l);
+           Swap(T, x, y, l+1);
+           break;
+       case 'A':
+           scanf("%d", &x);
+           cout << Get(T,x) << endl;
+           break;
+			default: break;
+       }
+   }
+
+   Print(T,n);
+
+   //cin >> x;
+   delete T;
+   return 0;
+}
