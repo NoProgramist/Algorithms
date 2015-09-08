@@ -1,0 +1,151 @@
+#pragma comment (linker, "/STACK:10000000")
+
+#include <string>
+#include <vector>
+#include <list>
+#include <iostream>
+#include <set>
+#include <queue>
+#include <sstream>
+#include <stack>
+#include <deque>
+#include <cmath>
+#include <memory.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cctype>
+#include <algorithm>
+#include <map>
+
+#define FOR(i,a,b) for(int (i) = (a); (i) < (b); ++(i))  
+#define RFOR(i,a,b) for(int (i) = (a)-1; (i) >= (b); --(i))  
+#define CLEAR(a) memset((a),0,sizeof(a))  
+#define INF 1000000000  
+#define PB push_back  
+#define ALL(c) (c).begin(), (c).end()  
+#define pi acos(-1.0)  
+#define SQR(a) (a)*(a)  
+#define MP make_pair  
+#define MAX 100000
+#define MOD 1000000007
+
+using namespace std;
+
+int n, m, sol, a, b;
+int tin[MAX], tout[MAX];
+vector<int> c[MAX];
+int s[MAX], v[MAX];
+int w[20][MAX], aa[MAX], bb[MAX];
+int t[MAX], xx[MAX], yy[MAX];
+int timer;
+
+
+void dfs(int x, int pr)
+{
+	tin[x] = timer++;
+	w[0][x] = pr;
+
+	FOR(u, 0, c[x].size())
+		if (tin[c[x][u]] == 0)
+			dfs(c[x][u], x);
+	tout[x] = timer++;
+}
+
+bool predok(int pr, int x)
+{
+	return (tin[pr] <= tin[x] && tout[pr] >= tout[x]);
+}
+
+int nsp(int a, int b)
+{
+	if (predok(a, b)) return a;
+	if (predok(b, a)) return b;
+
+	RFOR(i, 20, 0)
+		if (!predok(w[i][a], b)) a = w[i][a];
+
+	return (w[0][a]);
+}
+
+int DFS(int x)
+{
+	int y = 0;
+	v[x] = 1;
+
+	FOR(u, 0, c[x].size())
+		if (v[c[x][u]] == 0)
+			y += DFS(c[x][u]);
+
+	t[x] = y + s[x];
+	return t[x];
+}
+
+
+void Gen_Read()
+{
+	CLEAR(tin);
+	CLEAR(tout);
+	FOR(i, 0, MAX) c[i].clear();
+	CLEAR(w);
+	CLEAR(s); CLEAR(t); CLEAR(v);
+
+	cin >> n;
+
+	FOR(i, 0, n - 1){
+		scanf("%d %d", &xx[i], &yy[i]);
+		xx[i]--;
+		yy[i]--;
+	}
+
+	cin >> m;
+
+	FOR(i, 0, m){
+		scanf("%d %d", &aa[i], &bb[i]);
+		aa[i]--;
+		bb[i]--;
+	}
+
+}
+
+void solve(int show)
+{
+	FOR(i, 0, n - 1)
+	{
+		c[xx[i]].PB(yy[i]);
+		c[yy[i]].PB(xx[i]);
+	}
+
+	timer = 1;
+	dfs(0, 0);
+
+	FOR(deep, 0, 19)
+		FOR(i, 0, n)
+		w[deep + 1][i] = w[deep][w[deep][i]];
+
+
+	FOR(i, 0, m)
+	{
+		s[aa[i]]++; s[bb[i]]++;
+		s[nsp(aa[i], bb[i])] -= 2;
+	}
+
+	DFS(0);
+
+	sol = 0;
+	FOR(i, 1, n)
+		if (0 == t[i]) sol++;
+
+	cout << sol << endl;
+}
+
+int main()
+{
+	// freopen("input.txt","r",stdin);
+	// freopen("output.txt","w",stdout);
+
+	Gen_Read();
+	solve(1);
+
+
+	return 0;
+}
