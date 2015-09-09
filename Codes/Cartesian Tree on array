@@ -1,0 +1,156 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma comment (linker, "/STACK:10000000")
+
+#include <string>
+#include <vector>
+#include <list>
+#include <iostream>
+#include <set>
+#include <queue>
+#include <sstream>
+#include <stack>
+#include <deque>
+#include <cmath>
+#include <memory.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cctype>
+#include <algorithm>
+#include <map>
+
+using namespace std;
+
+#define FOR(i,a,b) for(int (i) = (a); (i) < (b); ++(i))  
+#define RFOR(i,a,b) for(int (i) = (a)-1; (i) >= (b); --(i))  
+#define CLEAR(a) memset((a),0,sizeof(a))  
+#define INF 1000000000  
+#define PB push_back  
+#define ALL(c) (c).begin(), (c).end()  
+#define pi acos(-1.0)  
+#define SQR(a) (a)*(a)  
+#define MP make_pair  
+#define MAX 1000005
+#define MOD 1000000007
+
+typedef long long ll;
+typedef vector<int> VI;
+
+struct node 
+{
+	int p, l, r, key, cnt, sum;
+	ll y;
+	bool rev;
+};
+
+int root, A, B, M, t;
+int len;
+node T[MAX];
+VI R;
+
+void push(int v) 
+{
+	if (v!=0 && T[v].rev) 
+	{
+		T[v].rev = false;
+		swap(T[v].l, T[v].r);
+		if (T[v].l)
+			T[T[v].l].rev ^= true;
+		if (T[v].r)
+			T[T[v].r].rev ^= true;
+	}
+}
+
+void update(int v) 
+{
+	T[v].cnt = T[T[v].l].cnt + T[T[v].r].cnt + 1;
+	T[v].sum = T[T[v].l].sum + T[T[v].r].sum + T[v].key;
+}
+
+void Split(int v, int &A, int &B, int x, int now = 0) 
+{
+	if (v==0) 
+	{
+		A = B = 0;
+		return;
+	}
+	push(v);
+	int cur = now + T[T[v].l].cnt + 1;
+	if (x < cur) 
+	{
+		Split(T[v].l, A, T[v].l, x, now);
+		B = v;
+	}
+	else 
+	{
+		Split(T[v].r, T[v].r, B, x, now + T[T[v].l].cnt + 1);
+		A = v;
+	}
+	update(v);
+}
+
+int Merge(int A, int B) 
+{
+	if (!A || !B) return A + B;
+	push(A);
+	push(B);
+	if (T[A].y > T[B].y) 
+	{
+		T[A].r = Merge(T[A].r, B);
+		update(A);
+		return A;
+	}
+	else 
+	{
+		T[B].l = Merge(A, T[B].l);
+		update(B);
+		return B;
+	}
+}
+
+void add(int v) 
+{
+	T[++len].key = v;
+	T[len].y = ((1ll*rand())<<16) + rand();
+	T[len].cnt = 1;
+	T[len].l = T[len].r = 0;
+	T[len].sum = v;
+	T[len].rev = false;
+	root = Merge(root, len);
+}
+
+void print(int ver)
+{
+	if (T[ver].l)
+		print(T[ver].l);
+	cout << T[ver].key << " ";
+	if (T[ver].r)
+		print(T[ver].r);
+}
+
+int main() 
+{
+	//freopen("input.txt", "r", stdin);
+
+	int n,m;
+	scanf("%d%d", &n, &m);
+
+	FOR(i, 0, n)
+		add(i+1);
+
+	while (m--) 
+	{
+		int l, r;
+		scanf("%d%d", &l, &r);
+		M = 0;
+		Split(root, A, B, r);
+		Split(A, A, M, l - 1);
+		//T[M].rev ^= true;
+		A = Merge(M, A);
+		root = Merge(A, B);
+	}
+
+	print(root);
+
+	return 0;
+
+}
