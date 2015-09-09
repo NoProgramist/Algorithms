@@ -58,7 +58,7 @@ VI Zfunction(string s)
 {
 	VI z(s.size());
 	int l = 0, r = 0;
-	rep(i, s.size())
+	FOR(i,1,s.size()-1)
 	{
 		if (i <= r)
 			z[i] = min(r - i + 1, z[i - l]);
