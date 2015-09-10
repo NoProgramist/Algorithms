@@ -94,7 +94,7 @@ int Update(int v, int tl, int tr, int pos, int val)
 	if (tl == tr)return Add(val);
 	int tm = tl + tr >> 1;	
 	return pos <= tm ? Add(Update(L[v], tl, tm, pos, val), R[v])
-					 : Add(L[v], Update(R[v], tm + 1, tr, pos, val));
+			 : Add(L[v], Update(R[v], tm + 1, tr, pos, val));
 }
 
 pii a[MAX];
