@@ -1,0 +1,82 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma comment (linker, "/STACK:10000000")
+
+#include <string>
+#include <vector>
+#include <list>
+#include <iostream>
+#include <set>
+#include <queue>
+#include <sstream>
+#include <stack>
+#include <deque>
+#include <cmath>
+#include <memory.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cctype>
+#include <algorithm>
+#include <map>
+
+using namespace std;
+
+#define FOR(i,a,b) for(int (i) = (a); (i) < (b); ++(i))  
+#define RFOR(i,a,b) for(int (i) = (a)-1; (i) >= (b); --(i))  
+#define CLEAR(a) memset((a),0,sizeof(a))  
+#define INF 1000000000  
+#define PB push_back  
+#define ALL(c) (c).begin(), (c).end()  
+#define pi acos(-1.0)  
+#define SQR(a) (a)*(a)  
+#define MP make_pair  
+#define MAX 1000005
+#define MOD 1000000007
+
+typedef long long ll;
+typedef vector<int> VI;
+typedef pair<int, int> PII;
+
+int n;
+vector< PII > p, sol;
+
+long long cross(PII A, PII B, PII C)
+{
+	return (long long)(A.first - B.first) * (C.second - B.second)
+		- (long long)(A.second - B.second) * (C.first - B.first);
+}
+
+int main() 
+{
+	//freopen("input.txt", "r", stdin);
+	int n;
+	cin >> n;
+	FOR(i, 0, n)
+	{
+		int x, y;
+		cin >> x >> y;
+		p.PB(MP(x, y));
+	}
+	
+	sort(ALL(p));
+	sol.resize(2 * n);
+	int k = 0;
+	FOR(i, 0, n)
+	{
+		while (k >= 2 && cross(sol[k - 2], sol[k - 1], p[i]) > 0) k--;
+		sol[k++] = p[i];
+	}
+	int t = k;
+	RFOR(i, n - 1, 0)
+	{
+		while (k >= t + 1 && cross(sol[k - 2], sol[k - 1], p[i]) > 0) k--;
+		sol[k++] = p[i];
+	}
+	sol.resize(k-1);
+
+	cout << sol.size() << endl;
+	FOR(i, 0, sol.size())
+		cout << sol[i].first << " " << sol[i].second << endl;
+
+	return 0;
+
+}
