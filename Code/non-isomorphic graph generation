@@ -1,0 +1,187 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma comment(linker, "/STACK:133217728")
+#include <iostream>
+#include <sstream>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
+#include <cctype>
+#include <cstring>
+#include <vector>
+#include <list>
+#include <queue>
+#include <deque>
+#include <stack>
+#include <map>
+#include <set>
+#include <algorithm>
+using namespace std;
+
+typedef pair<int, int> PII;
+typedef pair<long long, long long> PLL;
+typedef vector<int> VI;
+
+#define FOR(i, a, b) for(int i = (a); i < (b); ++i)
+#define RFOR(i, a, b) for(int i = (a) - 1; i >= (b); --i)
+#define ALL(a) (a).begin(),(a).end()
+#define PB push_back
+#define MP make_pair
+#define pi acos(-1.0)
+
+const int MOD = 1000000007;
+const int INF = 1000000007;
+const int MAX = 10000;
+
+typedef vector < vector<  char > > matrix;
+
+class Graph
+{
+public:
+	matrix c;
+	VI deg;
+	Graph(matrix & edges)
+	{
+		this->c = edges;
+		int n = c.size();
+		deg.resize(n, 0);
+		FOR(i, 0, n)
+			FOR(j, i, n)
+			if (c[i][j] == 1)
+			{
+				deg[i]++;
+				deg[j]++;
+			}
+	}
+
+	void show()
+	{
+		cout << "matrix" << endl;
+		int n = c.size();
+		cout << n << endl;
+		FOR(i, 0, n)
+		{
+			FOR(j, 0, n)
+				cout << (int)c[i][j] << " ";
+			cout << endl;
+		}
+	}
+
+	bool operator==(const Graph & x)
+	{
+		int n = c.size();
+		FOR(i, 0, n)
+		{
+			if (deg[i] != x.deg[i])
+				return false;
+		}
+		VI p;
+		FOR(i, 0, n)
+			p.PB(i);
+		do{
+			bool ok = true;
+			FOR(i, 0, n)
+				if (deg[i] != x.deg[p[i]])
+				{
+					ok = false;
+					break;
+				}
+			if (ok)
+			{
+				FOR(i, 0, n)
+				{
+					FOR(j, 0, n)
+					{
+						if (c[i][j] != x.c[p[i]][p[j]])
+						{
+							ok = false;
+							break;
+						}
+					}
+					if (!ok) break;
+				}
+				if (ok) return true;
+			}
+		} while (next_permutation(ALL(p)));
+		return false;
+	}
+
+	bool ok()
+	{
+		matrix temp = c;
+		int n = temp.size();
+
+		FOR(i, 0, n)
+		{
+			if (i && deg[i - 1] < deg[i]) return false;
+		}
+		
+		return true;
+	}
+};
+
+vector<Graph> V;
+
+void add(Graph & x)
+{
+	FOR(i, 0, V.size())
+		if (V[i] == x)
+			return;
+	V.PB(x);
+}
+
+Graph generate(int n, int mask)
+{
+	matrix x(n, vector< char >(n, 0));
+	int K = n*(n + 1) / 2;
+	FOR(i, 0, K)
+		if ((mask >> i) & 1)
+		{
+			int tn = n;
+			int from = 0;
+			while (i >= tn)
+			{
+				from++;
+				tn += n - from;
+			}
+			int passed = from*(from + 1) / 2;
+			int to = (i + passed) % n;
+
+			x[from][to] = 1;
+			x[to][from] = 1;
+			//cout << "from to " << from << " " << to << endl;
+		}
+
+	return Graph(x);
+}
+
+int main()
+{
+	//freopen("input.txt", "r", stdin);
+	//freopen("output.txt", "w", stdout);
+
+	int n;
+	cin >> n;
+
+	int M = 1 << (n*(n + 1) / 2);
+	//cout << "all=" << M << endl;
+	int T = 1 << 16;
+	--T;
+	FOR(m, 0, M)
+	{
+		if ((m&T) == T)
+			cout << m / T << endl;
+		Graph g = generate(n, m);
+		if (g.ok())
+		{
+			//g.show();
+			add(g);
+		}
+	}
+
+	FOR(i, 0, V.size())
+		V[i].show();
+
+	cout << "SZ=" << V.size() << endl;
+
+	return 0;
+}
